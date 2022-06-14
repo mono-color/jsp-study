@@ -60,7 +60,7 @@
 	%>
 	<c:forEach items="${userMap }" var="entry">
 		<h3>${entry.key }</h3>
-		<h3>${enty.value.userId }</h3>
+		<h3>${entry.value.userId }</h3>
 	</c:forEach>
 
 

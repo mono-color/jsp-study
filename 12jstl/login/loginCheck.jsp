@@ -21,10 +21,10 @@
 
 	<%
 		String id = request.getParameter("userId");
-
 		String pw = request.getParameter("userPass");
 		String save_id = request.getParameter("rememberMe");
 	%>
+
 	<c:if test="${save_id not empty }">
 		<%
 			CookieUtils cookieUtils = new CookieUtils(request);

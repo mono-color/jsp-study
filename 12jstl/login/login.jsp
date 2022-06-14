@@ -20,64 +20,53 @@
 		String msg = request.getParameter("msg");
 		String id = "";
 		String checked = "";
-
-		/* if (msg != null) {
-			out.print(msg);
-		} */
-		CookieUtils cookieUtils = new CookieUtils(request);
-
-		if (cookieUtils.exists("SAVE_ID")) {
-			id = cookieUtils.getValue("SAVE_ID");
-			checked = "checked='checked'";
-		}
-
-		UserVO user = (UserVO) session.getAttribute("USER_INFO");
-		/* if (user != null) { */
 	%>
-	
-	<c:if test="${msg not empty }">${msg }</c:if>
-	<%-- <c:if test="${cookieUtils.exists("SAVE_ID") }"></c:if> --%>
+	<%
+		UserVO user = (UserVO) session.getAttribute("USER_INFO");
+	%>
+	<c:if test="${empty user }">
+		<c:if test="${not empty msg}">
+		${msg }
+	</c:if>
 
-	<c:choose>
-		<c:when test="${user not empty }">
+		<div class="container">
+			<form action="loginCheck.jsp" class="loginForm" method="post">
+				<h2>로그인</h2>
+				<table class="table table-bordered">
+					<tbody>
+						<tr>
+							<th>아이디</th>
+							<td><input type="text" name="userId"
+								class="form-control input-sm" value="${id }"></td>
+						</tr>
+						<tr>
+							<th>비밀번호</th>
+							<td><input type="password" name="userPass"
+								class="form-control input-sm"></td>
+						</tr>
+						<tr>
+							<td colspan="2"><label><input type="checkbox"
+									name="rememberMe" value="Y" ${checked}>ID 기억하기</label></td>
+						</tr>
+						<tr>
+							<td colspan="2">
+								<button type="submit" class="btn btn-primary btn-sm pull-right">로그인</button>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</form>
+		</div>
+	</c:if>
+	<c:if test="${not empty user}">
+	
 			로그인 중
 			<br>
 			 id : ${user.userId}
 			, 이름 : ${user.userName}
 			, 역할 : ${user.userRole}
 			<a href="logout.jsp" class="btn btn-success btn-sm">로그아웃</a>
-		</c:when>
-		<c:otherwise>
-			<div class="container">
-				<form action="loginCheck.jsp" class="loginForm">
-					<h2>로그인</h2>
-					<table class="table table-bordered">
-						<tbody>
-							<tr>
-								<th>아이디</th>
-								<td><input type="text" name="userId"
-									class="form-control input-sm" value="${id }"></td>
-							</tr>
-							<tr>
-								<th>비밀번호</th>
-								<td><input type="password" name="userPass"
-									class="form-control input-sm"></td>
-							</tr>
-							<tr>
-								<td colspan="2"><label><input type="checkbox"
-										name="rememberMe" value="Y" ${checked}>ID 기억하기</label></td>
-							</tr>
-							<tr>
-								<td colspan="2">
-									<button type="submit" class="btn btn-primary btn-sm pull-right">로그인</button>
-								</td>
-							</tr>
-						</tbody>
-					</table>
-				</form>
-			</div>
-		</c:otherwise>
-	</c:choose>
+	</c:if>
 
 </body>
 </html>
