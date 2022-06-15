@@ -1,3 +1,4 @@
+<%@page import="java.sql.PreparedStatement"%>
 <%@page import="com.study.free.vo.FreeBoardVO"%>
 <%@page import="java.sql.DriverManager"%>
 <%@page import="java.sql.ResultSet"%>
@@ -22,12 +23,12 @@
 		Class.forName("oracle.jdbc.driver.OracleDriver");
 
 		Connection conn = null;
-		Statement stmt = null;
+		PreparedStatement ps = null;
 		ResultSet rs = null;
 
 		try {
 			conn = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe", "jsp", "oracle");
-			stmt = conn.createStatement(); // 쿼리수행 객체
+			
 			String queryString = "     ";
 
 			StringBuffer sb = new StringBuffer();
@@ -40,9 +41,13 @@
 			sb.append("     , bo_del_yn      											");
 			sb.append(" FROM     														");
 			sb.append("     free_board    							  	      			");
-			sb.append(" WHERE bo_no=" + boNo);
+			sb.append(" WHERE bo_no= ? 														");
 
-			rs = stmt.executeQuery(sb.toString());
+			ps = conn.prepareStatement(sb.toString());
+			// 쿼리문이 ? 포함 된 쿼리문. ?처리를 하고나서 executeQuery()해야 됨
+			ps.setInt(1, boNo); //?처리할 때 ''알아서 처리해 줌
+			
+			rs = ps.executeQuery();
 			//rs가 1줄입니다.
 			if (rs.next()) {
 				FreeBoardVO freeBoard = new FreeBoardVO();
@@ -70,9 +75,9 @@
 				} catch (Exception e) {
 				}
 			}
-			if (stmt != null) {
+			if (ps != null) {
 				try {
-					stmt.close();
+					ps.close();
 				} catch (Exception e) {
 				}
 			}
