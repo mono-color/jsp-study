@@ -1,3 +1,4 @@
+<%@page import="java.sql.PreparedStatement"%>
 <%@page import="java.sql.DriverManager"%>
 <%@page import="com.study.member.vo.MemberVO"%>
 <%@page import="java.sql.SQLException"%>
@@ -22,13 +23,12 @@
 		Class.forName("oracle.jdbc.driver.OracleDriver"); //Class.forName 런타임
 		
 		Connection conn = null;
-		Statement stmt = null;
+		PreparedStatement ps = null;
 		ResultSet rs = null;
 
 		try {
 			conn = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe", "jsp", "oracle");
 
-			stmt = conn.createStatement(); // 쿼리수행 객체
 			String queryString = "     ";
 			StringBuffer sb = new StringBuffer();
 			
@@ -41,9 +41,12 @@
 			sb.append("     , mem_mileage    , mem_del_yn						");
 			sb.append(" FROM														");
 			sb.append("     member												");
-			sb.append(" WHERE mem_id='"+memId+"'");
+			sb.append(" WHERE mem_id = ? 										");
 			
-			rs = stmt.executeQuery(sb.toString());
+			ps = conn.prepareStatement(sb.toString());
+			ps.setString(1, memId);
+			
+			rs = ps.executeQuery();
 
 			if (rs.next()) {
 				MemberVO member = new MemberVO();
@@ -77,9 +80,9 @@
 				} catch (Exception e) {
 				}
 			}
-			if (stmt != null) {
+			if (ps != null) {
 				try {
-					stmt.close();
+					ps.close();
 				} catch (Exception e) {
 				}
 			}
