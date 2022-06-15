@@ -17,7 +17,7 @@
 	<%
 	String msg = request.getParameter("msg");
 	String id = "";
-	String checked = "";
+	String rememberId = "";
 
 	if (msg != null) {
 		out.print(msg);
@@ -26,7 +26,7 @@
 	
 	if (cookieUtils.exists("SAVE_ID")) {
 		id = cookieUtils.getValue("SAVE_ID");
-		checked = "checked='checked'";
+		rememberId = "checked";
 	}
 
 	UserVO user = (UserVO)session.getAttribute("USER_INFO");
@@ -55,7 +55,7 @@
 						<td><input type="password" name="userPass" class="form-control input-sm"></td>
 					</tr>
 					<tr>
-						<td colspan="2"><label><input type="checkbox" name="rememberMe" value="Y" <%=checked %>>ID 기억하기</label></td>
+						<td colspan="2"><label><input type="checkbox" name="rememberId" value="Y" <%=rememberId %>>ID 기억하기</label></td>
 					</tr>
 					<tr>
 						<td colspan="2">

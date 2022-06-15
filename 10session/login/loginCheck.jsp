@@ -21,38 +21,28 @@
 
 	<%
 		String id = request.getParameter("userId");
-
 		String pw = request.getParameter("userPass");
-		String save_id = request.getParameter("rememberMe");
-		if (save_id == null) {
-			CookieUtils cookieUtils = new CookieUtils(request);
-			if (cookieUtils.exists("SAVE_ID")) {
-				Cookie cookie = CookieUtils.createCookie("SAVE_ID", id, "/", 0);
-				response.addCookie(cookie);
-			}
-			save_id = "";
+		String rememberId = request.getParameter("rememberId");
+
+		if (rememberId == null) {
+			response.addCookie(CookieUtils.createCookie("SAVE_ID", "", 0));
+		} else {
+			response.addCookie(CookieUtils.createCookie("SAVE_ID", id, 60 * 60 * 24 * 7));
 		}
 
 		if ((id == null || id.isEmpty()) || (pw == null || pw.isEmpty())) {
-			response.sendRedirect("login.jsp?msg=" + URLEncoder.encode("입력안했어요", "utf-8"));
-		} else {
-
+			response.sendRedirect("login.jsp?msg=Please enter ID and PW");
+		} else { // id 정상입력 받음
 			UserList userList = new UserList();
 			UserVO user = userList.getUser(id);
-
-			if (user == null) {
-				response.sendRedirect("login.jsp?msg=" + URLEncoder.encode("아이디 또는 비번확인", "utf-8"));
-			} else { //id맞았을때 
+			if (user == null) { // id 없을 때
+				response.sendRedirect("login.jsp?msg=Fail to login. ID or PW is not corrected.");
+			} else { //id 맞았을 때 
 				if (user.getUserPass().equals(pw)) {//다 맞는경우
-					if (save_id.equals("Y")) {
-						response.addCookie(CookieUtils.createCookie("SAVE_ID", id, "/", 3600 * 24 * 7));
-					}
-					
 					session.setAttribute("USER_INFO", user);
-					/* response.addCookie(CookieUtils.createCookie("AUTH", id)); */
 					response.sendRedirect("login.jsp");
 				} else {//  비번만 틀린경우
-					response.sendRedirect("login.jsp?msg=" + URLEncoder.encode("아이디 또는 비번확인", "utf-8"));
+					response.sendRedirect("login.jsp?msg=Fail to login. ID or PW is not corrected.");
 				}
 
 			}
