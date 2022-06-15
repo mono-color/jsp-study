@@ -19,13 +19,12 @@
 
 	<%
 		String msg = request.getParameter("msg");
-		if (msg != null) {
-			out.print(msg);
-		}
-
 		String id = "";
 		String remember_id = "";
 
+		if (msg != null) {
+			out.print(msg);
+		}
 		CookieUtils cookieUtils = new CookieUtils(request);
 
 		if (cookieUtils.exists("SAVE_ID")) {

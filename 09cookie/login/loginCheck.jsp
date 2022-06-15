@@ -23,6 +23,7 @@
 		String userId = request.getParameter("userId");
 		String userPass = request.getParameter("userPass");
 		String rememberId = request.getParameter("rememberId");
+
 		if (rememberId == null) {
 			response.addCookie(CookieUtils.createCookie("SAVE_ID", "", 0));
 		} else {
@@ -34,16 +35,15 @@
 		} else { // 정상 입력받음
 			UserList userList = new UserList();
 			UserVO user = userList.getUser(userId);
-			if (user != null) { // 아이디 일치 
+			if (user == null) { // id 없을 때 
+				response.sendRedirect("login.jsp?msg=Fail to login. ID or PW is not corrected.");
+			} else {
 				if (user.getUserPass().equals(userPass)) { // 비밀번호 일치
 					response.addCookie(new Cookie("AUTH", userId));
-					//response.sendRedirect("login.jsp");
 					response.sendRedirect("login.jsp?msg=Login success!!");
-				} else {
+				} else { // 비밀번호 틀린경우
 					response.sendRedirect("login.jsp?msg=Fail to login. ID or PW is not corrected.");
 				}
-			} else {
-				response.sendRedirect("login.jsp?msg=Login success!!");
 			}
 		}
 	%>
