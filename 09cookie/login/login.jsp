@@ -24,20 +24,20 @@
 		}
 
 		String id = "";
-		String checked = "";
+		String remember_id = "";
 
 		CookieUtils cookieUtils = new CookieUtils(request);
 
 		if (cookieUtils.exists("SAVE_ID")) {
 			id = cookieUtils.getValue("SAVE_ID");
-			checked = "checked";
+			remember_id = "checked";
 		}
 
 		if (!cookieUtils.exists("AUTH")) {
 	%>
 
 	<div class="container">
-		<form action="loginCheck.jsp" class="loginForm">
+		<form action="loginCheck.jsp" class="loginForm" method="post">
 			<h2>로그인</h2>
 			<table class="table table-bordered">
 				<tbody>
@@ -53,7 +53,7 @@
 					</tr>
 					<tr>
 						<td colspan="2"><label><input type="checkbox"
-								name="rememberMe" value="Y" <%=checked%>>ID 기억하기</label></td>
+								name="rememberId" value="Y" <%=remember_id%>>ID 기억하기</label></td>
 					</tr>
 					<tr>
 						<td colspan="2">

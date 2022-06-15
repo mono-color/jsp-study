@@ -22,28 +22,28 @@
 	<%
 		String userId = request.getParameter("userId");
 		String userPass = request.getParameter("userPass");
-		String save_id = request.getParameter("save_id");
-		if(save_id == null){
-			response.addCookie(CookieUtils.createCookie("SAVE_ID", userId, 60 * 60 * 24 * 7));
-		} else {
+		String rememberId = request.getParameter("rememberId");
+		if (rememberId == null) {
 			response.addCookie(CookieUtils.createCookie("SAVE_ID", "", 0));
+		} else {
+			response.addCookie(CookieUtils.createCookie("SAVE_ID", userId, 60 * 60 * 24 * 7));
 		}
 
 		if (userId == null || userPass == null) {
 			response.sendRedirect("login.jsp?msg=Please enter ID and PW");
-		} else {
+		} else { // 정상 입력받음
 			UserList userList = new UserList();
 			UserVO user = userList.getUser(userId);
-			if (user != null) {
-				if (user.getUserPass().equals(userPass)) {
-					response.sendRedirect("login.jsp?msg=Login success!!");
-					response.addCookie(CookieUtils.createCookie("SAVE_ID", userId, 60 * 60 * 24 * 7));
+			if (user != null) { // 아이디 일치 
+				if (user.getUserPass().equals(userPass)) { // 비밀번호 일치
 					response.addCookie(new Cookie("AUTH", userId));
+					//response.sendRedirect("login.jsp");
+					response.sendRedirect("login.jsp?msg=Login success!!");
 				} else {
 					response.sendRedirect("login.jsp?msg=Fail to login. ID or PW is not corrected.");
 				}
-			}else{
-			response.sendRedirect("login.jsp?msg=Login success!!");
+			} else {
+				response.sendRedirect("login.jsp?msg=Login success!!");
 			}
 		}
 	%>
