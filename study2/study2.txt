@@ -33,8 +33,22 @@
 			 
 Exception 처리
 		
-		
-		
+
+
+1.
+free는 비밀번호를 안 바꿈. 글쓴 사람 확인용
+member는 비밀번호도 그냥 update
+id 중복체크
+ - id를 사용자가 입력함. 근데 id는 PK
+ - DB에 해당 id가 있는지 확인하고
+   있으면 throw new BizDuplicateKeyException
+   없으면 그냥 insert
+
+2. Exception 꼭 적절히 처리해주세요.
+   getMember했는데 DB에 없다 => BizNotFoundException
+   update 쿼리 실행했는데 cnt가 0이다 => BizNotEffectedException
+   
+	
 		
 		
 		

@@ -1,4 +1,6 @@
 
+<%@page import="com.study.member.service.MemberServiceImpl"%>
+<%@page import="com.study.member.service.IMemberService"%>
 <%@page import="com.study.member.vo.MemberVO"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="java.sql.PreparedStatement"%>
@@ -8,122 +10,69 @@
 <%@page import="java.sql.Statement"%>
 <%@page import="java.sql.Connection"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %> 
+	pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-	<%@ include file="/WEB-INF/inc/header.jsp" %>
+<%@ include file="/WEB-INF/inc/header.jsp"%>
 </head>
 <body>
-<%@include file="/WEB-INF/inc/top.jsp"%>
+	<%@include file="/WEB-INF/inc/top.jsp"%>
 
 	<%
 		//DB 조회해서 화면에 뿌려
-		Connection conn = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-
-		try {
-			// 연결
-			conn = DriverManager.getConnection("jdbc:apache:commons:dbcp:study");
-			// 쿼리문 만들기 Stringbuffer
-			StringBuffer sb = new StringBuffer();
-			sb.append(" SELECT																	");
-			sb.append(" 				*															");
-			sb.append(" FROM																		");
-			sb.append(" member																	");
-
-			// ps 셋팅
-			ps = conn.prepareStatement(sb.toString());
-
-			// ? 셋팅
-// 			ps.setString(1, memId);
-
-			// rs=ps 실행
-			rs = ps.executeQuery();
-
-			// rs 가지고 있는 객체 만들어서 req.setAttr
-			List<MemberVO> memberList = new ArrayList<>();
-
-			while (rs.next()) {
-				MemberVO member = new MemberVO();
-				
-				member.setMemId(rs.getString("mem_id"));
-				member.setMemPass(rs.getString("mem_pass"));
-				member.setMemName(rs.getString("mem_name"));
-				member.setMemBir(rs.getString("mem_bir"));
-				member.setMemZip(rs.getString("mem_zip"));
-				member.setMemAdd1(rs.getString("mem_add1"));
-				member.setMemAdd2(rs.getString("mem_add2"));
-				member.setMemHp(rs.getString("mem_hp"));
-				member.setMemMail(rs.getString("mem_mail"));
-				member.setMemJob(rs.getString("mem_job"));
-				member.setMemHobby(rs.getString("mem_hobby"));
-				member.setMemMileage(rs.getInt("mem_mileage"));
-				member.setMemDelYn(rs.getString("mem_del_yn"));
-
-				memberList.add(member);
-
-			}
-			request.setAttribute("memberList", memberList);
-
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} finally {
-			// 종료
-			if (rs != null) {	try {rs.close();} catch (Exception e) {}}
-			if (ps != null) {try {ps.close();} catch (Exception e) {}}
-			if (conn != null) {try {	conn.close();} catch (Exception e) {}}
-		}
+		IMemberService memberService = new MemberServiceImpl();
+		List<MemberVO> memberList = memberService.getMemberList();
+		request.setAttribute("memberList", memberList);
 	%>
 
 
 
- <div class="container">	
-	<h3>회원목록</h3>		
-	<div>
-		<a href="memberForm.jsp" class="btn btn-primary btn-sm pull-right">회원 등록</a>
-	</div>
-	<table class="table table-striped table-bordered">
-	<caption class="hidden">회원목록 조회</caption>
-	<colgroup>
-		<col style="width: 15%" />
-		<col />
-		<col style="width: 20%" />
-		<col style="width: 20%" />
-		<col style="width: 15%" />
-		<col style="width: 15%" />
-	</colgroup>
-	<thead>
-		<tr>
-			<th>ID</th>
-			<th>회원명</th>
-			<th>HP</th>
-			<th>생일</th>
-			<th>직업</th>
-			<th>마일리지</th>
-		</tr>
-	</thead>
-	<tbody>
-	
-	<c:forEach items="${memberList }" var="member">
+	<div class="container">
+		<h3>회원목록</h3>
+		<div>
+			<a href="memberForm.jsp" class="btn btn-primary btn-sm pull-right">회원
+				등록</a>
+		</div>
+		<table class="table table-striped table-bordered">
+			<caption class="hidden">회원목록 조회</caption>
+			<colgroup>
+				<col style="width: 15%" />
+				<col />
+				<col style="width: 20%" />
+				<col style="width: 20%" />
+				<col style="width: 15%" />
+				<col style="width: 15%" />
+			</colgroup>
+			<thead>
+				<tr>
+					<th>ID</th>
+					<th>회원명</th>
+					<th>HP</th>
+					<th>생일</th>
+					<th>직업</th>
+					<th>마일리지</th>
+				</tr>
+			</thead>
+			<tbody>
+
+				<c:forEach items="${memberList }" var="member">
 					<tr>
 						<td>${member.memId }</td>
-						<td><a
-							href="memberView.jsp?memId=${member.memId }">${member.memName }</a></td>
+						<td><a href="memberView.jsp?memId=${member.memId }">${member.memName }</a></td>
 						<td>${member.memHp }</td>
 						<td>${member.memBir }</td>
 						<td>${member.memJob }</td>
 						<td>${member.memMileage }</td>
 					</tr>
 				</c:forEach>
-				
 
-	</tbody>			
-	</table>
-</div>
+
+			</tbody>
+		</table>
+	</div>
 
 </body>
 </html>

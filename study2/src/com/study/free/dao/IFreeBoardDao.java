@@ -1,6 +1,5 @@
 package com.study.free.dao;
 
-import java.sql.Connection;
 import java.util.List;
 
 

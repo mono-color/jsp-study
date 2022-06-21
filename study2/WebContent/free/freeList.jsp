@@ -24,7 +24,7 @@
 		IFreeBoardService freeBoardService = new FreeBoardServiceImpl();
 		List<FreeBoardVO> freeBoardList = freeBoardService.getBoardList();
 		request.setAttribute("freeBoardList", freeBoardList);
-		
+
 		// 밑에 있는는 코드는 나중에 dao로 이동
 	%>
 

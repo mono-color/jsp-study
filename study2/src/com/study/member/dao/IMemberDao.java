@@ -1,6 +1,5 @@
 package com.study.member.dao;
 
-import java.sql.Connection;
 import java.util.List;
 
 import com.study.member.vo.MemberVO;
