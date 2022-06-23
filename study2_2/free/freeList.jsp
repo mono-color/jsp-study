@@ -19,15 +19,21 @@
 </head>
 <body>
 	<%@ include file="/WEB-INF/inc/top.jsp"%>
+	<jsp:useBean id="pagingVO" class="com.study.common.vo.PagingVO"></jsp:useBean>
+	<jsp:setProperty property="*" name="pagingVO" />
 
+	전 : ${pagingVO }
 	<%
 		IFreeBoardService freeBoardService = new FreeBoardServiceImpl();
-		List<FreeBoardVO> freeBoardList = freeBoardService.getBoardList();
-		request.setAttribute("freeBoardList", freeBoardList);
+		//pagingVO는 curPage만 세팅된 값
+		List<FreeBoardVO> freeBoardList = freeBoardService.getBoardList(pagingVO);
+		//이 후의 pagingVO는 전부 세팅된 값
+
+		//request.setAttribute("freeBoardList", freeBoardList);
 
 		// 밑에 있는는 코드는 나중에 dao로 이동
 	%>
-
+	후 : ${pagingVO }
 
 
 	<div class="container">
@@ -36,6 +42,72 @@
 				자유게시판 - <small>글 목록</small>
 			</h3>
 		</div>
+		<!-- START : 검색 폼  -->
+		<div class="panel panel-default">
+			<div class="panel-body">
+				<form name="search" action="freeList.jsp" method="post"
+					class="form-horizontal">
+					<input type="hidden" name="curPage" value="6"> <input
+						type="hidden" name="rowSizePerPage" value="10">
+					<div class="form-group">
+						<label for="id_searchType" class="col-sm-2 control-label">검색</label>
+						<div class="col-sm-2">
+							<select id="id_searchType" name="searchType"
+								class="form-control input-sm">
+								<option value="T">제목</option>
+								<option value="W">작성자</option>
+								<option value="C">내용</option>
+							</select>
+						</div>
+						<div class="col-sm-2">
+							<input type="text" name="searchWord"
+								class="form-control input-sm" value="" placeholder="검색어">
+						</div>
+						<label for="id_searchCategory"
+							class="col-sm-2 col-sm-offset-2 control-label">분류</label>
+						<div class="col-sm-2">
+							<select id="id_searchCategory" name="searchCategory"
+								class="form-control input-sm">
+								<option value="">-- 전체 --</option>
+								<c:forEach items="${cateList}" var="code">
+									<option value="${code.commCd}">${code.commNm}</option>
+								</c:forEach>
+							</select>
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="col-sm-2 col-sm-offset-9 text-right">
+							<button type="button" id="id_btn_reset"
+								class="btn btn-sm btn-default">
+								<i class="fa fa-sync"></i> &nbsp;&nbsp;초기화
+							</button>
+						</div>
+						<div class="col-sm-1 text-right">
+							<button type="submit" class="btn btn-sm btn-primary ">
+								<i class="fa fa-search"></i> &nbsp;&nbsp;검 색
+							</button>
+						</div>
+					</div>
+				</form>
+
+			</div>
+		</div>
+		<!-- END : 검색 폼  -->
+
+		<!-- START : 목록건수 및 새글쓰기 버튼  -->
+		<div class="row" style="margin-bottom: 10px;">
+			<div class="col-sm-3 form-inline">
+				전체 1000건 조회 <select id="id_rowSizePerPage" name="rowSizePerPage"
+					class="form-control input-sm">
+					<c:forEach var="i" begin="10" end="50" step="10">
+						<option value=""></option>
+					</c:forEach>
+				</select>
+			</div>
+		</div>
+		<!-- END : 목록건수 및 새글쓰기 버튼  -->
+
+
 		<div class="row">
 			<div class="col-sm-2 col-sm-offset-10 text-right"
 				style="margin-bottom: 5px;">
@@ -79,6 +151,50 @@
 				</c:forEach>
 			</tbody>
 		</table>
+		<!-- START : 페이지네이션  -->
+		<nav class="text-center">
+			<ul class="pagination">
+
+				<!-- 첫 페이지  -->
+				<li><a href="freeList.jsp?curPage=1" data-page="1"><span
+						aria-hidden="true">&laquo;</span></a></li>
+
+
+				<!-- 이전 페이지 -->
+				<c:if test="${pagingVO.firstPage ne 1}">
+					<li><a href="freeList.jsp?curPage=${pagingVO.firstPage - 1 }" data-page="${pagingVO.firstPage - 1 }"><span
+							aria-hidden="true">&lt;</span></a></li>
+				</c:if>
+
+				<!-- 페이지 넘버링  -->
+				<c:forEach begin="${pagingVO.firstPage }" end="${pagingVO.lastPage }" var="i">
+					<c:if test="${i eq pagingVO.curPage }">
+						<li class="active"><a href="#" data-page="${i }">${i }</a></li>
+					</c:if> 
+					<c:if test="${i ne pagingVO.curPage }">
+						<li><a href="freeList.jsp?curPage=${i }" data-page="${i }">${i }</a></li>
+					</c:if>
+				</c:forEach>
+				<!-- <li><a href="freeList.jsp?curPage=6" data-page="6">6</a></li>
+				<li><a href="freeList.jsp?curPage=7" data-page="7">7</a></li>
+				<li><a href="freeList.jsp?curPage=8" data-page="8">8</a></li>
+					<li class="active"><a href="#">9</a></li>
+				<li><a href="freeList.jsp?curPage=10" data-page="10">10</a></li> -->
+
+				<!-- 다음  페이지  -->
+				<c:if test="${pagingVO.lastPage ne pagingVO.totalPageCount}">
+					<li><a href="freeList.jsp?curPage=${pagingVO.lastPage + 1 }"
+						data-page="${pagingVO.lastPage + 1 }"><span aria-hidden="true">&gt;</span></a></li>
+				</c:if>
+
+				<!-- 마지막 페이지 -->
+				<li><a href="freeList.jsp?curPage=${pagingVO.totalPageCount }"
+					data-page="${pagingVO.totalPageCount }"><span aria-hidden="true">&raquo;</span></a>
+				</li>
+			</ul>
+		</nav>
+		<!-- END : 페이지네이션  -->
+
 	</div>
 	<!-- container -->
 </body>
