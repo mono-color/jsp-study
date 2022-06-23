@@ -6,11 +6,43 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.study.common.vo.PagingVO;
 import com.study.exception.DaoException;
 import com.study.free.vo.FreeBoardVO;
 public class FreeBoardDaoOracle implements IFreeBoardDao{
+	
 	@Override
-	public List<FreeBoardVO> getBoardList() {
+	public int getTotalRowCount(PagingVO pagingVO) {
+		Connection conn = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			conn = DriverManager.getConnection("jdbc:apache:commons:dbcp:study");
+			StringBuffer sb = new StringBuffer();
+			sb.append(" SELECT count(*) 	");
+			sb.append(" FROM free_board	 	");
+			
+			ps = conn.prepareStatement(sb.toString());
+			rs = ps.executeQuery();
+			int count = 0;
+			if(rs.next()) {
+				//count=rs.getInt(count(*));
+				count = rs.getInt(1);
+			}
+			return count;
+		}catch(SQLException e) {
+			throw new DaoException("getTotalRowCount : "+ e.getMessage());
+		}finally{
+			if(rs !=null) {try{ rs.close();}catch(Exception e){}}
+			if(ps !=null) {try{ ps.close();}catch(Exception e){}}
+			if(conn !=null) {try{ conn.close();}catch(Exception e){}}
+		}
+	}
+	
+	
+	@Override
+	public List<FreeBoardVO> getBoardList(PagingVO pagingVO) {
 		Connection conn = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
@@ -257,5 +289,11 @@ public class FreeBoardDaoOracle implements IFreeBoardDao{
 			if (ps != null) {try {ps.close();} catch (Exception e) {} }
 			if (conn != null) {try {	conn.close();	} catch (Exception e) {} }
 		}
+	}
+
+	@Override
+	public List<FreeBoardVO> getBoardList() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

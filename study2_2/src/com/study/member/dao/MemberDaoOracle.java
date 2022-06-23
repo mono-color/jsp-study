@@ -115,11 +115,7 @@ public class MemberDaoOracle implements IMemberDao {
 			sb.append("	 ,mem_add2 		         										");
 			sb.append("	 ,mem_hp 		         											");
 			sb.append("	 ,mem_mail 		         										");
-			sb.append(
-					"	 ,DECODE(MEM_JOB, 'JB01', '주부', 'JB02', '은행원', 'JB03', '공무원', 'JB04', '축산업', 'JB05', '회사원', 'JB06', '농업', 'JB07', '자영업', 'JB08', '학생', 'JB09', '교사', '알 수 없음') AS MEM_JOB 		         											");
-			sb.append(
-					"	 ,DECODE(MEM_HOBBY, 'HB01', '서예', 'HB02', '장기', 'HB03', '수영', 'HB04', '독서', 'HB05', '당구', 'HB06', '바둑', 'HB07', '볼링', 'HB08', '스키', 'HB09', '만화', 'HB10', '낚시', 'HB11', '영화감상', 'HB12', '등산', 'HB13', '개그', 'HB14', '카레이싱', '알 수 없음') AS MEM_HOBBY 	             										");
-			sb.append("	 ,mem_mileage 	     											");
+			sb.append(" 	 , mem_job    , mem_hobby    , mem_mileage					");
 			sb.append("	 ,mem_del_yn 	         											");
 			sb.append(" 	    , b.comm_nm AS mem_job_nm									");
 			sb.append(" 	    , c.comm_nm AS mem_hobby_nm									");

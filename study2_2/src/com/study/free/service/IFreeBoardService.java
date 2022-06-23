@@ -2,6 +2,7 @@ package com.study.free.service;
 
 import java.util.List;
 
+import com.study.common.vo.PagingVO;
 import com.study.exception.BizNotEffectedException;
 import com.study.exception.BizNotFoundException;
 import com.study.exception.BizPasswordNotMatchedException;
@@ -18,7 +19,7 @@ public interface IFreeBoardService {
 	 * 
 	 */
 	
-	public List<FreeBoardVO> getBoardList();
+	public List<FreeBoardVO> getBoardList(PagingVO pagingVO);
 	public FreeBoardVO getBoard(int boNo) throws BizNotFoundException;
 	
 	public void increaseHit(int boNo) throws BizNotEffectedException;
