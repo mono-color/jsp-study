@@ -7,6 +7,7 @@ import com.study.exception.BizNotFoundException;
 import com.study.exception.BizPasswordNotMatchedException;
 import com.study.free.dao.FreeBoardDaoOracle;
 import com.study.free.dao.IFreeBoardDao;
+import com.study.free.vo.FreeBoardSearchVO;
 import com.study.free.vo.FreeBoardVO;
 /*I** Service
 **ServiceImpl*/
@@ -14,15 +15,15 @@ public class FreeBoardServiceImpl implements IFreeBoardService{
 	IFreeBoardDao freeBoardDao = new FreeBoardDaoOracle();
 	
 	@Override
-	public List<FreeBoardVO> getBoardList(PagingVO pagingVO) {
+	public List<FreeBoardVO> getBoardList(FreeBoardSearchVO searchVO) {
 		//jsp에서 넘어왔을 때
 		//pagingVO는 curPage만 세팅되어 있고 나머지는 기본값
-		int totalRowCount = freeBoardDao.getTotalRowCount(pagingVO);
-		pagingVO.setTotalRowCount(totalRowCount);
-		pagingVO.pageSetting();
+		int totalRowCount = freeBoardDao.getTotalRowCount(searchVO);
+		searchVO.setTotalRowCount(totalRowCount);
+		searchVO.pageSetting();
 		//나머지 필드 전부 세팅이 됨!
 		
-		return freeBoardDao.getBoardList(pagingVO);
+		return freeBoardDao.getBoardList(searchVO);
 	}
 	@Override
 	public FreeBoardVO getBoard(int boNo) throws BizNotFoundException {

@@ -9,11 +9,12 @@ import java.util.List;
 
 import com.study.common.vo.PagingVO;
 import com.study.exception.DaoException;
+import com.study.free.vo.FreeBoardSearchVO;
 import com.study.free.vo.FreeBoardVO;
 public class FreeBoardDaoOracle implements IFreeBoardDao{
 	
 	@Override
-	public int getTotalRowCount(PagingVO pagingVO) {
+	public int getTotalRowCount(FreeBoardSearchVO searchVO) {
 		Connection conn = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -22,6 +23,7 @@ public class FreeBoardDaoOracle implements IFreeBoardDao{
 			StringBuffer sb = new StringBuffer();
 			sb.append(" SELECT count(*) 	");
 			sb.append(" FROM free_board	 	");
+			sb.append(" WHERE bo_del_yn='N'	");
 			
 			ps = conn.prepareStatement(sb.toString());
 			rs = ps.executeQuery();
@@ -42,9 +44,9 @@ public class FreeBoardDaoOracle implements IFreeBoardDao{
 	
 	
 	@Override
-	public List<FreeBoardVO> getBoardList(PagingVO pagingVO) {
+	public List<FreeBoardVO> getBoardList(FreeBoardSearchVO searchVO) {
 		Connection conn = null;
-		PreparedStatement pstmt = null;
+		PreparedStatement ps = null;
 		ResultSet rs = null;
 		
 		try{
@@ -52,6 +54,8 @@ public class FreeBoardDaoOracle implements IFreeBoardDao{
 			//쿼리문 만들기 StringBuffer
 			StringBuffer sb = new StringBuffer();
 			
+			sb.append(" SELECT * FROM(														");
+			sb.append(" SELECT ROWNUM AS rnum, a.* FROM(									");
 			sb.append(" SELECT																");
 			sb.append("      bo_no,        bo_title,     bo_category  					");
 			sb.append("    , bo_writer, 	bo_pass,      bo_content    				");
@@ -62,14 +66,21 @@ public class FreeBoardDaoOracle implements IFreeBoardDao{
 			sb.append("    , b.comm_nm AS bo_category_nm									");
 			sb.append(" FROM	free_board a, comm_code b									");
 			sb.append(" WHERE a.bo_category = b.comm_cd									");
+			sb.append(" AND bo_del_yn='N'													");
+			sb.append(" ORDER BY bo_no desc													");
+			sb.append(" ) a																	");
+			sb.append(" ) b																	");
+			sb.append(" WHERE rnum between ? AND ?											");
 			
 			// pstmt 만들기
-			pstmt=conn.prepareStatement(sb.toString());
+			ps=conn.prepareStatement(sb.toString());
 			// ? 세팅 (?가 있는 경우로)
-					
-			// rs = pstmt.쿼리실행
-			rs = pstmt.executeQuery();
+			int cnt = 1;
+			ps.setInt(cnt++, searchVO.getFirstRow());
+			ps.setInt(cnt++, searchVO.getLastRow());
 			
+			// rs = pstmt.쿼리실행
+			rs = ps.executeQuery();
 			//rs가지고 객체 만들어서 req.setAttr
 			List<FreeBoardVO> freeBoardList = new ArrayList<>();
 			while(rs.next()){
@@ -101,10 +112,13 @@ public class FreeBoardDaoOracle implements IFreeBoardDao{
 		}finally{
 			//종료
 			if(rs !=null) {try{ rs.close();}catch(Exception e){}}
-			if(pstmt !=null) {try{ pstmt.close();}catch(Exception e){}}
+			if(ps !=null) {try{ ps.close();}catch(Exception e){}}
 			if(conn !=null) {try{ conn.close();}catch(Exception e){}}
 		}
 	}
+	
+
+
 	@Override
 	public FreeBoardVO getBoard(int boNo) {
 		Connection conn = null;
