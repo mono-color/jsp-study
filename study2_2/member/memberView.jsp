@@ -24,22 +24,22 @@
 
 	<%
 		String memId = request.getParameter("memId");
-		
-		IMemberService memberService = new MemberServiceImpl();	
-		
-		try{
+
+		IMemberService memberService = new MemberServiceImpl();
+
+		try {
 			MemberVO member = memberService.getMember(memId);
 			request.setAttribute("member", member);
-		}catch (BizNotFoundException bne){
+		} catch (BizNotFoundException bne) {
 			request.setAttribute("bne", bne);
 		}
 		
-		
 	%>
+	
 
-
-
-	<div class="alert alert-warning">해당 멤버를 찾을 수 없습니다</div>
+	<c:if test="${bne ne null }">
+		<div class="alert alert-warning">해당 멤버를 찾을 수 없습니다</div>
+	</c:if>
 	<a href="memberList.jsp" class="btn btn-default btn-sm"> <span
 		class="glyphicon glyphicon-list" aria-hidden="true"></span> &nbsp;목록
 	</a>

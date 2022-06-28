@@ -18,7 +18,9 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<%request.setCharacterEncoding("utf-8"); %>
+<%
+	request.setCharacterEncoding("utf-8");
+%>
 <%@include file="/WEB-INF/inc/header.jsp"%>
 </head>
 <body>
@@ -31,15 +33,14 @@
 		IFreeBoardService freeBoardService = new FreeBoardServiceImpl();
 		List<FreeBoardVO> freeBoardList = freeBoardService.getBoardList(searchVO);
 		request.setAttribute("freeBoardList", freeBoardList);
-		
+
 		ICommCodeService codeService = new CommCodeServiceImpl();
 		List<CodeVO> cateList = codeService.getCodeListByParent("BC00");
 		request.setAttribute("cateList", cateList);
-		
+
 		// 밑에 있는는 코드는 나중에 dao로 이동
 	%>
-	<br>
-	후 : ${searchVO } 
+	<br> 후 : ${searchVO }
 
 
 	<div class="container">
@@ -53,21 +54,25 @@
 			<div class="panel-body">
 				<form name="search" action="freeList.jsp" method="post"
 					class="form-horizontal">
-					<input type="hidden" name="curPage" value="${searchVO.curPage }"> <input
-						type="hidden" name="rowSizePerPage" value="10">
+					<input type="hidden" name="curPage" value="${searchVO.curPage }">
+					<input type="hidden" name="rowSizePerPage" value="${searchVO.rowSizePerPage }">
 					<div class="form-group">
 						<label for="id_searchType" class="col-sm-2 control-label">검색</label>
 						<div class="col-sm-2">
 							<select id="id_searchType" name="searchType"
 								class="form-control input-sm">
-								<option value="T" ${searchVO.searchType eq "T" ? "selected='selected'" : "" }>제목</option>
-								<option value="W" ${searchVO.searchType eq "W" ? "selected='selected'" : "" }>작성자</option>
-								<option value="C" ${searchVO.searchType eq "C" ? "selected='selected'" : "" }>내용</option>
+								<option value="T"
+									${searchVO.searchType eq "T" ? "selected='selected'" : "" }>제목</option>
+								<option value="W"
+									${searchVO.searchType eq "W" ? "selected='selected'" : "" }>작성자</option>
+								<option value="C"
+									${searchVO.searchType eq "C" ? "selected='selected'" : "" }>내용</option>
 							</select>
 						</div>
 						<div class="col-sm-2">
 							<input type="text" name="searchWord"
-								class="form-control input-sm" value="${searchVO.searchWord }" placeholder="검색어">
+								class="form-control input-sm" value="${searchVO.searchWord }"
+								placeholder="검색어">
 						</div>
 						<label for="id_searchCategory"
 							class="col-sm-2 col-sm-offset-2 control-label">분류</label>
@@ -76,7 +81,8 @@
 								class="form-control input-sm">
 								<option value="">-- 전체 --</option>
 								<c:forEach items="${cateList}" var="code">
-									<option value="${code.commCd}" ${searchVO.searchCategory eq code.commCd ? "selected='selected'" : "" }>${code.commNm}</option>
+									<option value="${code.commCd}"
+										${searchVO.searchCategory eq code.commCd ? "selected='selected'" : "" }>${code.commNm}</option>
 								</c:forEach>
 							</select>
 						</div>
@@ -103,10 +109,12 @@
 		<!-- START : 목록건수 및 새글쓰기 버튼  -->
 		<div class="row" style="margin-bottom: 10px;">
 			<div class="col-sm-3 form-inline">
-				전체 1000건 조회 <select id="id_rowSizePerPage" name="rowSizePerPage"
-					class="form-control input-sm">
+				전체 ${searchVO.totalRowCount }건 조회 <select id="id_rowSizePerPage"
+					name="rowSizePerPage" class="form-control input-sm">
 					<c:forEach var="i" begin="10" end="50" step="10">
-						<option value=""></option>
+						<option value="${i }"
+							${i eq searchVO.rowSizePerPage ? "selected='selected'" : "" }>${i }
+						</option>
 					</c:forEach>
 				</select>
 			</div>
@@ -167,42 +175,36 @@
 
 				<!-- 이전 페이지 -->
 				<c:if test="${searchVO.firstPage ne 1}">
-					<li>
-						<a href="freeList.jsp?curPage=${searchVO.firstPage - 1 }" data-page="${searchVO.firstPage - 1 }">
-							<span aria-hidden="true">&lt;</span>
-						</a>
-					</li>
+					<li><a href="freeList.jsp?curPage=${searchVO.firstPage - 1 }"
+						data-page="${searchVO.firstPage - 1 }"> <span
+							aria-hidden="true">&lt;</span>
+					</a></li>
 				</c:if>
 
 				<!-- 페이지 넘버링  -->
-				<c:forEach begin="${searchVO.firstPage }" end="${searchVO.lastPage }" var="i">
+				<c:forEach begin="${searchVO.firstPage }"
+					end="${searchVO.lastPage }" var="i">
 					<c:if test="${i eq searchVO.curPage }">
 						<li class="active"><a href="#" data-page="${i }">${i }</a></li>
-					</c:if> 
+					</c:if>
 					<c:if test="${i ne searchVO.curPage }">
 						<li><a href="freeList.jsp?curPage=${i }" data-page="${i }">${i }</a></li>
 					</c:if>
 				</c:forEach>
-				<!-- <li><a href="freeList.jsp?curPage=6" data-page="6">6</a></li>
-				<li><a href="freeList.jsp?curPage=7" data-page="7">7</a></li>
-				<li><a href="freeList.jsp?curPage=8" data-page="8">8</a></li>
-					<li class="active"><a href="#">9</a></li>
-				<li><a href="freeList.jsp?curPage=10" data-page="10">10</a></li> -->
 
 				<!-- 다음  페이지  -->
 				<c:if test="${searchVO.lastPage ne searchVO.totalPageCount}">
-					<li>
-						<a href="freeList.jsp?curPage=${searchVO.lastPage + 1 }" data-page="${searchVO.lastPage + 1 }">
-							<span aria-hidden="true">&gt;</span>
-						</a>
-					</li>
+					<li><a href="freeList.jsp?curPage=${searchVO.lastPage + 1 }"
+						data-page="${searchVO.lastPage + 1 }"> <span
+							aria-hidden="true">&gt;</span>
+					</a></li>
 				</c:if>
 
 				<!-- 마지막 페이지 -->
 				<li><a href="freeList.jsp?curPage=${searchVO.totalPageCount }"
-					data-page="${searchVO.totalPageCount }"><span aria-hidden="true">&raquo;</span></a>
-				</li>
-				
+					data-page="${searchVO.totalPageCount }"><span
+						aria-hidden="true">&raquo;</span></a></li>
+
 			</ul>
 		</nav>
 		<!-- END : 페이지네이션  -->
@@ -237,12 +239,10 @@
 <script type="text/javascript">
 	//form태그 안에 있는 input들은 submit하는 순간 파라미터가 한번에 넘어감.
 	// name이랑 VO의 필드(속성, 멤버변수)랑 같아야 한다.
-	
+
 	// 변수 정의
-	$form=$("form[name='search']");
-	$curPage=$form.find("input[name='curPage']");
-
-
+	$form = $("form[name='search']");
+	$curPage = $form.find("input[name='curPage']");
 	// 각 이벤트 등록 : a태그 ( 1,2,3, ~ 10)
 	// 페이지 링크 클릭, event전파방지, data속성값읽고 form태그 내의 input name=curPage값 바꾸기 
 	//submit
@@ -250,43 +250,49 @@
 		// a태그 기본 이벤트 대신에, form태그 submit하면 됨
 		// form태그 submit하면됨() 필요한 input들 form태그 안에 추가함
 		// form태그 안에 있는 curPage값=$(" selector").data("page"); //현재 내가 누른 페이지 값
-		
+
 		// a태그 기본 이벤트 막기
 		e.preventDefault();
+		//또는 return false;를 해줘도 됨
+
 		// form 태그 안에 있는 curPage값을   내가 현재 누른 페이지로 바꾸기
 		$curPage.val($(this).data("page"));
 		// 그리고 form태그 submit
 		$("form[name='search']").submit();
-		
-		
+
 	}); // ul.pagination li a[data-page]
 
-	
 	//form태그내의 버튼 클릭
 	//이벤트전파방지, curPage 값 1로
 	//submit
 	$form.find("button[type=submit]").click(function(e) {
-		
+		e.preventDefault();
+		$curPage.val(1);
+		$("form[name='search']").submit();
 	});
 
-	
 	// 목록 갯수 변경
 	// id_rowSizePerPage 변경되었을 때
 	// 페이지 1, 목록수 = 현재값 으로 변경 후 서브밋
 	$('#id_rowSizePerPage').change(function(e) {
-		
+		$curPage.val(1);
+		$form.find("input[name='rowSizePerPage']").val($(this).val());
+		$form.submit();
 	}); // '#id_rowSizePerPage'.change
 
 	// 초기화 버튼 클릭
-	$('#id_btn_reset').click(function() {
-		
-		
-	}); // #id_btn_reset.click 
-
+	$('#id_btn_reset').click(
+		function() {
+			$curPage.val(1);
+			$form.find("input[name='searchWord']").val("");
+			$form.find("select[name='searchType'] option:eq(0)").attr(
+					"selected", "selected");
+			$form.find("select[name='searchCategory'] option:eq(0)").attr(
+					"selected", "selected");
+		}
+	); // #id_btn_reset.click
 </script>
 </html>
-
-
 
 
 
