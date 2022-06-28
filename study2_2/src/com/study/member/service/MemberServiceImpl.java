@@ -7,15 +7,19 @@ import com.study.exception.BizNotEffectedException;
 import com.study.exception.BizNotFoundException;
 import com.study.member.dao.IMemberDao;
 import com.study.member.dao.MemberDaoOracle;
+import com.study.member.vo.MemberSearchVO;
 import com.study.member.vo.MemberVO;
 
 public class MemberServiceImpl implements IMemberService {
 	IMemberDao memberDao = new MemberDaoOracle();
 
 	@Override
-	public List<MemberVO> getMemberList() {
+	public List<MemberVO> getMemberList(MemberSearchVO searchVO) {
 		// TODO Auto-generated method stub
-		return memberDao.getMemberList();
+		int totalRowCount = memberDao.getTotalRowCount(searchVO);
+		searchVO.setTotalRowCount(totalRowCount);
+		searchVO.pageSetting();
+		return memberDao.getMemberList(searchVO);
 	}
 
 	@Override

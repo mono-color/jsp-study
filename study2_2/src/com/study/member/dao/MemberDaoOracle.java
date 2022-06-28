@@ -8,24 +8,90 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.study.exception.DaoException;
+import com.study.member.vo.MemberSearchVO;
 import com.study.member.vo.MemberVO;
 
 public class MemberDaoOracle implements IMemberDao {
-
+	
+	public int getTotalRowCount(MemberSearchVO searchVO) {
+		Connection conn = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			conn = DriverManager.getConnection("jdbc:apache:commons:dbcp:study");
+			StringBuffer sb = new StringBuffer();
+			sb.append(" SELECT count(*) 	");
+			sb.append(" FROM member	 	");
+			sb.append(" WHERE mem_del_yn='N'	");
+			
+			if(StringUtils.isNotBlank(searchVO.getSearchWord())) {
+				switch (searchVO.getSearchType()) {
+				case "NM":
+					sb.append(" AND mem_name  LIKE '%' || ? || '%'");
+					break;
+				case "ID":
+					sb.append(" AND mem_id  LIKE '%' || ? || '%'");
+					break;
+				case "HP":
+					sb.append(" AND mem_hp  LIKE '%' || ? || '%'");
+					break;
+				}
+			}
+			if(StringUtils.isNotBlank(searchVO.getSearchJob())) {
+				sb.append(" AND mem_job = ? ");
+			}
+			if(StringUtils.isNotBlank(searchVO.getSearchHobby())) {
+				sb.append(" AND mem_hobby = ? ");
+			}
+			
+			ps = conn.prepareStatement(sb.toString());
+			
+			int cnt = 1;
+			if(StringUtils.isNotBlank(searchVO.getSearchWord())) {
+				ps.setString(cnt++, searchVO.getSearchWord());
+			}
+			if(StringUtils.isNotBlank(searchVO.getSearchJob())) {
+				ps.setString(cnt++, searchVO.getSearchJob());
+			}
+			if(StringUtils.isNotBlank(searchVO.getSearchHobby())) {
+				ps.setString(cnt++, searchVO.getSearchHobby());
+			}
+			
+			rs = ps.executeQuery();
+			
+			int count = 0;
+			rs = ps.executeQuery();
+			if(rs.next()) {
+				//count=rs.getInt(count(*));
+				count = rs.getInt(1);
+			}
+			return count;
+		}catch(SQLException e) {
+			throw new DaoException("getTotalRowCount : "+ e.getMessage());
+		}finally{
+			if(rs !=null) {try{ rs.close();}catch(Exception e){}}
+			if(ps !=null) {try{ ps.close();}catch(Exception e){}}
+			if(conn !=null) {try{ conn.close();}catch(Exception e){}}
+		}
+	}
+	
 	@Override
-	public List<MemberVO> getMemberList() {
+	public List<MemberVO> getMemberList(MemberSearchVO searchVO) {
 		Connection conn = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 
 		try {
-			// 연결
 			conn = DriverManager.getConnection("jdbc:apache:commons:dbcp:study");
-			// 쿼리문 만들기 Stringbuffer
 			StringBuffer sb = new StringBuffer();
+			
+			sb.append(" SELECT * FROM(													");
+			sb.append(" SELECT ROWNUM AS rnum, a.* FROM(								");
 			sb.append(" SELECT															");
-			sb.append(" 	mem_id    , mem_pass    , mem_name							");
+			sb.append(" 		 mem_id    , mem_pass    , mem_name					");
 			sb.append(" 	    , TO_CHAR(mem_bir, 'YYYY-MM-DD') as mem_bir			");
 			sb.append(" 	    , mem_zip    , mem_add1									");
 			sb.append(" 	    , mem_add2    , mem_hp    , mem_mail					");
@@ -38,13 +104,50 @@ public class MemberDaoOracle implements IMemberDao {
 			sb.append(" WHERE a.mem_job = b.comm_cd									");
 			sb.append(" AND a.mem_hobby = c.comm_cd									");
 
+			if(StringUtils.isNotBlank(searchVO.getSearchWord())) {
+				switch (searchVO.getSearchType()) {
+				case "NM":
+					sb.append(" AND mem_name  LIKE '%' || ? || '%'");
+					break;
+				case "ID":
+					sb.append(" AND mem_id  LIKE '%' || ? || '%'");
+					break;
+				case "HP":
+					sb.append(" AND mem_hp  LIKE '%' || ? || '%'");
+					break;
+				}
+			}
+			if(StringUtils.isNotBlank(searchVO.getSearchJob())) {
+				sb.append(" AND mem_job = ? ");
+			}
+			if(StringUtils.isNotBlank(searchVO.getSearchHobby())) {
+				sb.append(" AND mem_hobby = ? ");
+			}
+			
+			sb.append(" ORDER BY mem_id desc													");
+			sb.append(" ) a																	");
+			sb.append(" ) b																	");
+			sb.append(" WHERE rnum between ? AND ?											");
+			
 			ps = conn.prepareStatement(sb.toString());
-
+			
+			int cnt = 1;
+			if(StringUtils.isNotBlank(searchVO.getSearchWord())) {
+				ps.setString(cnt++, searchVO.getSearchWord());
+			}
+			if(StringUtils.isNotBlank(searchVO.getSearchJob())) {
+				ps.setString(cnt++, searchVO.getSearchJob());
+			}
+			if(StringUtils.isNotBlank(searchVO.getSearchHobby())) {
+				ps.setString(cnt++, searchVO.getSearchHobby());
+			}
+			ps.setInt(cnt++, searchVO.getFirstRow());
+			ps.setInt(cnt++, searchVO.getLastRow());
+			
 			rs = ps.executeQuery();
-
+			
 			// rs 가지고 있는 객체 만들어서 req.setAttr
 			List<MemberVO> memberList = new ArrayList<>();
-
 			while (rs.next()) {
 				MemberVO member = new MemberVO();
 
@@ -63,9 +166,7 @@ public class MemberDaoOracle implements IMemberDao {
 				member.setMemDelYn(rs.getString("mem_del_yn"));
 				member.setMemJobNm(rs.getString("mem_job_nm"));
 				member.setMemHobbyNm(rs.getString("mem_hobby_nm"));
-
 				memberList.add(member);
-
 			}
 			return memberList;
 		} catch (SQLException e) {
@@ -343,5 +444,6 @@ public class MemberDaoOracle implements IMemberDao {
 			if (conn != null) {try {	conn.close();	} catch (Exception e) {} }
 		}
 	}
+
 
 }

@@ -7,7 +7,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.study.common.vo.PagingVO;
+import org.apache.commons.lang3.StringUtils;
+
 import com.study.exception.DaoException;
 import com.study.free.vo.FreeBoardSearchVO;
 import com.study.free.vo.FreeBoardVO;
@@ -25,9 +26,36 @@ public class FreeBoardDaoOracle implements IFreeBoardDao{
 			sb.append(" FROM free_board	 	");
 			sb.append(" WHERE bo_del_yn='N'	");
 			
+			// searchVO.getSearchWord()!=null && !searchVO.getSearchWord().isEmpty()
+			if(StringUtils.isNotBlank(searchVO.getSearchWord())) {
+				// 검색어가 있을 때만
+				switch(searchVO.getSearchType()) {
+				case"T":
+					sb.append(" AND bo_title LIKE '%' || ? || '%'");
+					break;
+				case"W":
+					sb.append(" AND bo_writer LIKE '%' || ? || '%'");
+					break;
+				case"C":
+					sb.append(" AND bo_content LIKE '%' || ? || '%'");
+					break;
+				}
+			}// 검색어가 있을 때...
+			if(StringUtils.isNotBlank(searchVO.getSearchCategory())){
+				sb.append(" AND bo_category = ? ");
+			}
+			
 			ps = conn.prepareStatement(sb.toString());
-			rs = ps.executeQuery();
+			int index = 1;
+			if(StringUtils.isNotBlank(searchVO.getSearchWord())) {
+				ps.setString(index++, searchVO.getSearchWord());
+			}
+			if(StringUtils.isNotBlank(searchVO.getSearchCategory())) {
+				ps.setString(index++, searchVO.getSearchCategory());
+			}
+			
 			int count = 0;
+			rs = ps.executeQuery();
 			if(rs.next()) {
 				//count=rs.getInt(count(*));
 				count = rs.getInt(1);
@@ -67,6 +95,24 @@ public class FreeBoardDaoOracle implements IFreeBoardDao{
 			sb.append(" FROM	free_board a, comm_code b									");
 			sb.append(" WHERE a.bo_category = b.comm_cd									");
 			sb.append(" AND bo_del_yn='N'													");
+			
+			if (StringUtils.isNotBlank(searchVO.getSearchWord())) {
+				switch (searchVO.getSearchType()) {
+				case "T":
+					sb.append(" AND bo_title  LIKE '%' || ? || '%'");
+					break;
+				case "W":
+					sb.append(" AND bo_writer  LIKE '%' || ? || '%'");
+					break;
+				case "C":
+					sb.append(" AND bo_content  LIKE '%' || ? || '%'");
+					break;
+				}
+			}	// 검색어가 있을 때
+			if(StringUtils.isNotBlank(searchVO.getSearchCategory())) {
+				sb.append(" AND bo_category = ? ");
+			}
+			
 			sb.append(" ORDER BY bo_no desc													");
 			sb.append(" ) a																	");
 			sb.append(" ) b																	");
@@ -76,6 +122,13 @@ public class FreeBoardDaoOracle implements IFreeBoardDao{
 			ps=conn.prepareStatement(sb.toString());
 			// ? 세팅 (?가 있는 경우로)
 			int cnt = 1;
+			
+			if(StringUtils.isNotBlank(searchVO.getSearchWord())) {
+				ps.setString(cnt++, searchVO.getSearchWord());
+			}
+			if(StringUtils.isNotBlank(searchVO.getSearchCategory())) {
+				ps.setString(cnt++, searchVO.getSearchCategory());
+			}
 			ps.setInt(cnt++, searchVO.getFirstRow());
 			ps.setInt(cnt++, searchVO.getLastRow());
 			
@@ -305,9 +358,4 @@ public class FreeBoardDaoOracle implements IFreeBoardDao{
 		}
 	}
 
-	@Override
-	public List<FreeBoardVO> getBoardList() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 }
