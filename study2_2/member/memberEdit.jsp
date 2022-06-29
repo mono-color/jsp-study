@@ -20,95 +20,28 @@
 	<%
 		String memId = request.getParameter("memId");
 
-		//DB 조회해서 화면에 뿌려
-		Connection conn = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
+		IMemberService memberService = new MemberServiceImpl();
 
-		try {
-			// 연결
-			conn = DriverManager.getConnection("jdbc:apache:commons:dbcp:study");
-			// 쿼리문 만들기 Stringbuffer
-			StringBuffer sb = new StringBuffer();
-			sb.append(" SELECT																	");
-			sb.append("	 mem_id			  												");
-			sb.append("	 ,mem_pass 		     											");
-			sb.append("	 ,mem_name 		      											");
-			sb.append("	 ,TO_CHAR(mem_bir, 'YYYY-MM-DD') as mem_bir					");
-			sb.append("	 ,mem_zip 		         											");
-			sb.append("	 ,mem_add1 		         										");
-			sb.append("	 ,mem_add2 		         										");
-			sb.append("	 ,mem_hp 		         											");
-			sb.append("	 ,mem_mail 		         										");
-			sb.append("	 ,mem_job 		         											");
-			sb.append("	 ,mem_hobby 	             										");
-			sb.append("	 ,mem_mileage 	     											");
-			sb.append("	 ,mem_del_yn 	         											");
-			sb.append(" FROM																		");
-			sb.append(" member																	");
-			sb.append("  WHERE mem_id = ?														");
-
-			// ps 셋팅
-			ps = conn.prepareStatement(sb.toString());
-
-			// ? 셋팅
-			ps.setString(1, memId);
-
-			// rs=ps 실행
-			rs = ps.executeQuery();
-
-			// rs 가지고 있는 객체 만들어서 req.setAttr
-
-			while (rs.next()) {
-				MemberVO member = new MemberVO();
-
-				member.setMemId(rs.getString("mem_id"));
-				member.setMemPass(rs.getString("mem_pass"));
-				member.setMemName(rs.getString("mem_name"));
-				member.setMemBir(rs.getString("mem_bir"));
-				member.setMemZip(rs.getString("mem_zip"));
-				member.setMemAdd1(rs.getString("mem_add1"));
-				member.setMemAdd2(rs.getString("mem_add2"));
-				member.setMemHp(rs.getString("mem_hp"));
-				member.setMemMail(rs.getString("mem_mail"));
-				member.setMemJob(rs.getString("mem_job"));
-				member.setMemHobby(rs.getString("mem_hobby"));
-				member.setMemMileage(rs.getInt("mem_mileage"));
-				member.setMemDelYn(rs.getString("mem_del_yn"));
-
-				request.setAttribute("member", member);
-				System.out.print(member);
-
-			}
-
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} finally {
-			// 종료
-			if (rs != null) {
-				try {
-					rs.close();
-				} catch (Exception e) {
-				}
-			}
-			if (ps != null) {
-				try {
-					ps.close();
-				} catch (Exception e) {
-				}
-			}
-			if (conn != null) {
-				try {
-					conn.close();
-				} catch (Exception e) {
-				}
-			}
+		try{
+			MemberVO member = memberService.getMember(memId);
+			request.setAttribute("member", member);
+		} catch (BizNotFoundException bne) {
+			request.setAttribute("bne", bne);
 		}
+
+		ICommCodeService codeService = new CommCodeServiceImpl();
+		List<CodeVO> jobList = codeService.getCodeListByParent("JB00");
+		request.setAttribute("jobList", jobList);
+		
+		List<CodeVO> hobbyList = codeService.getCodeListByParent("HB00");
+		request.setAttribute("hobbyList", hobbyList);
+
+		
 	%>
 
 
 
-	<c:if test="${e ne null }">
+	<c:if test="${bne ne null }">
 		<div class="alert alert-warning">해당 멤버를 찾을 수 없습니다</div>
 	</c:if>
 	<a href="memberList.jsp" class="btn btn-default btn-sm"> <span
@@ -116,7 +49,7 @@
 	</a>
 
 
-
+	<c:if test="${bne eq null}">
 	<div class="container">
 		<h3>회원 정보 수정</h3>
 		<form action="memberModify.jsp" method="post">
@@ -171,59 +104,20 @@
 						<th>직업</th>
 						<td><select name="memJob" class="form-control input-sm">
 								<option value="">-- 직업 선택 --</option>
-								<option value="JB01"
-									${member.memJob eq "JB01" ? "selected='selected'" : ""}>주부</option>
-								<option value="JB02"
-									${member.memJob eq "JB02" ? "selected='selected'" : ""}>은행원</option>
-								<option value="JB03"
-									${member.memJob eq "JB03" ? "selected='selected'" : ""}>공무원</option>
-								<option value="JB04"
-									${member.memJob eq "JB04" ? "selected='selected'" : ""}>축산업</option>
-								<option value="JB05"
-									${member.memJob eq "JB05" ? "selected='selected'" : ""}>회사원</option>
-								<option value="JB06"
-									${member.memJob eq "JB06" ? "selected='selected'" : ""}>농업</option>
-								<option value="JB07"
-									${member.memJob eq "JB07" ? "selected='selected'" : ""}>자영업</option>
-								<option value="JB08"
-									${member.memJob eq "JB08" ? "selected='selected'" : ""}>학생</option>
-								<option value="JB09"
-									${member.memJob eq "JB09" ? "selected='selected'" : ""}>교사</option>
-
+								<c:forEach items="${jobList }" var="job">
+									<option value="${job.commCd}"
+										${member.memJob eq job.commCd ? "selected='selected'" : ""}>${job.commNm}</option>								
+								</c:forEach>
 						</select></td>
 					</tr>
 					<tr>
 						<th>취미</th>
 						<td><select name="memHobby" class="form-control input-sm">
 								<option value="">-- 취미 선택 --</option>
-								<option value="HB01"
-									${member.memHobby eq "HB01" ? "selected='selected'" : ""}>서예</option>
-								<option value="HB02"
-									${member.memHobby eq "HB02" ? "selected='selected'" : ""}>장기</option>
-								<option value="HB03"
-									${member.memHobby eq "HB03" ? "selected='selected'" : ""}>수영</option>
-								<option value="HB04"
-									${member.memHobby eq "HB04" ? "selected='selected'" : ""}>독서</option>
-								<option value="HB05"
-									${member.memHobby eq "HB05" ? "selected='selected'" : ""}>당구</option>
-								<option value="HB06"
-									${member.memHobby eq "HB06" ? "selected='selected'" : ""}>바둑</option>
-								<option value="HB07"
-									${member.memHobby eq "HB07" ? "selected='selected'" : ""}>볼링</option>
-								<option value="HB08"
-									${member.memHobby eq "HB08" ? "selected='selected'" : ""}>스키</option>
-								<option value="HB09"
-									${member.memHobby eq "HB09" ? "selected='selected'" : ""}>만화</option>
-								<option value="HB10"
-									${member.memHobby eq "HB10" ? "selected='selected'" : ""}>낚시</option>
-								<option value="HB11"
-									${member.memHobby eq "HB11" ? "selected='selected'" : ""}>영화감상</option>
-								<option value="HB12"
-									${member.memHobby eq "HB12" ? "selected='selected'" : ""}>등산</option>
-								<option value="HB13"
-									${member.memHobby eq "HB13" ? "selected='selected'" : ""}>개그</option>
-								<option value="HB14"
-									${member.memHobby eq "HB14" ? "selected='selected'" : ""}>카레이싱</option>
+								<c:forEach items="${hobbyList}" var="hobby">
+									<option value="hobby.commCd"
+										${member.memHobby eq hobby.commCd ? "selected='selected'" : ""}>${hobby.commNm}</option>
+								</c:forEach>
 						</select></td>
 					</tr>
 					<tr>
@@ -255,7 +149,7 @@
 			</table>
 		</form>
 	</div>
-
+	</c:if>
 
 </body>
 </html>
