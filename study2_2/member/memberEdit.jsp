@@ -1,4 +1,10 @@
 
+<%@page import="com.study.exception.BizNotFoundException"%>
+<%@page import="com.study.code.vo.CodeVO"%>
+<%@page import="com.study.code.service.CommCodeServiceImpl"%>
+<%@page import="com.study.code.service.ICommCodeService"%>
+<%@page import="com.study.member.service.MemberServiceImpl"%>
+<%@page import="com.study.member.service.IMemberService"%>
 <%@page import="com.study.member.vo.MemberVO"%>
 <%@page import="java.sql.Connection"%>
 <%@page import="java.sql.SQLException"%>
